@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "eta"
+version = "0.1.0"
+description = ""
+authors = ["jpzunigacenicana <topografo1@cenicana.org>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+streamlit = "^1.37.1"
+leafmap = {extras = ["maplibre"], version = "^0.36.6"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
