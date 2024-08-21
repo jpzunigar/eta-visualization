@@ -61,17 +61,6 @@ To run this application locally, follow these steps:
 
    Open your browser and navigate to `http://localhost:8501` to view the app.
 
-## Project Structure
-
-.
-├── app.py # Main Streamlit app script
-├── data/
-│ └── suertes_eta.geojson # GeoJSON data file (replace with your own)
-├── README.md # Project documentation
-├── poetry.lock # Poetry lock file
-├── pyproject.toml # Poetry configuration file
-
-
 ## How It Works
 
 - **GeoPandas** is used to load and process GeoJSON data.

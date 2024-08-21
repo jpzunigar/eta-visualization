@@ -4,7 +4,8 @@ import geopandas as gpd
 import pandas as pd
 import altair as alt
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    layout="wide", page_title="ETa Visualization App", page_icon=":bar_chart:")
 data_eta = './data/suertes_eta.geojson'
 
 # Load the GeoJSON data with GeoPandas
@@ -70,7 +71,7 @@ with st.sidebar:
         **Julian David Ome Narvaez**
         - Email: jdome@cenicana.org
 
-        **Alberto Mario Arroyo **
+        **Alberto Mario Arroyo**
         - Email: amarroyo@cenicana.org
 
         """
@@ -82,7 +83,7 @@ st.write("")
 st.write("")
 
 if "basemap" not in st.session_state:
-    st.session_state.basemap = "Esri.WorldImagery"
+    st.session_state.basemap = "OpenStreetMap"
 
 options = list(leafmap.basemaps.keys())
 
@@ -98,8 +99,9 @@ df = gdf[['quantile_bin', '_mean']]
 
 # Create the bar chart
 bar = alt.Chart(df).mark_bar().encode(
-    y=alt.X('_mean', bin=alt.Bin(
-        extent=[quantiles[0], quantiles[-1]], step=(quantiles[-1] - quantiles[0]) / 10)),
+    y=alt.Y('_mean', bin=alt.Bin(
+        extent=[quantiles[0], quantiles[-1]], step=(quantiles[-1] - quantiles[0]) / 10),
+        axis=alt.Axis(title='ETa Value Range')),
     x='count()',
     color=alt.Color('quantile_bin:N', scale=alt.Scale(domain=[
                     "Very Low ETa", "Low ETa", "Moderate ETa", "High ETa", "Very High ETa"], range=colors)),
@@ -112,7 +114,7 @@ col1, col2 = st.columns([3, 1])
 
 with col2:
     st.session_state.basemap = st.selectbox(
-        "Select basemap", options, index=options.index("Esri.WorldImagery"))
+        "Select basemap", options, index=options.index("OpenStreetMap"))
     st.altair_chart(bar, use_container_width=True)
 
 with col1:
