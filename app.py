@@ -16,7 +16,7 @@ centroid = gdf.geometry.centroid[0]
 centroid_lat, centroid_lon = centroid.y, centroid.x
 
 # Calculate quantiles
-quantiles = gdf['_mean'].quantile([0, 0.25, 0.5, 0.75, 1.0]).values
+quantiles = gdf['_mean'].quantile([0, 0.25, 0.5, 0.75, .975]).values
 
 # Define the colors for the stops using hex codes
 colors = ["#808080", "#FFFF00", "#FFA500", "#8B0000", "#ADD8E6"]
@@ -140,7 +140,7 @@ with col1:
                             },
                             "isVisible": True,
                             "visConfig": {
-                                "opacity": 0.72,
+                                "opacity": 0.97,
                                 "strokeOpacity": 0.8,
                                 "thickness": 0.5,
                                 "strokeColor": [
@@ -153,11 +153,11 @@ with col1:
                                     "type": "custom",
                                     "category": "Custom",
                                     "colors": [
-                                        "#808080",
+                                        "#8B0000",
                                         "#FFFF00",
                                         "#FFA500",
-                                        "#8B0000",
-                                        "#ADD8E6"
+                                        "#ADD8E6",
+                                        "#808080"
                                     ]
                                 },
                                 "strokeColorRange": {
@@ -213,7 +213,7 @@ with col1:
                         },
                         "visualChannels": {
                             "colorField": {
-                                "name": "color",
+                                "name": "quantile_bin",
                                 "type": "string"
                             },
                             "colorScale": "ordinal",
@@ -276,12 +276,12 @@ with col1:
                 }
             },
             "mapState": {
-                "bearing": 2.6192893401015205,
+                "bearing": -22.152697630582523,
                 "dragRotate": True,
-                "latitude": 3.777306559818618,
-                "longitude": -76.37071390286864,
-                "pitch": 37.374216241015446,
-                "zoom": 10.75174663737936,
+                "latitude": 3.7742874996814626,
+                "longitude": -76.35980840682173,
+                "pitch": 52.63868002201548,
+                "zoom": 11.176347872552315,
                 "isSplit": False
             },
             "mapStyle": {
