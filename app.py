@@ -1,8 +1,8 @@
 import streamlit as st
-import leafmap.maplibregl as leafmap
 import geopandas as gpd
 import pandas as pd
 import altair as alt
+import leafmap.kepler as leafmap
 
 st.set_page_config(
     layout="wide", page_title="ETa Visualization App", page_icon=":bar_chart:")
@@ -77,15 +77,9 @@ with st.sidebar:
         """
     )
 
-
 st.title("ETa visualization on sugarcane Field")
 st.write("")
 st.write("")
-
-if "basemap" not in st.session_state:
-    st.session_state.basemap = "OpenStreetMap"
-
-options = list(leafmap.basemaps.keys())
 
 # Create a DataFrame for Altair with quantile bins
 gdf['quantile_bin'] = pd.cut(
@@ -94,6 +88,7 @@ gdf['quantile_bin'] = pd.cut(
     labels=["Very Low ETa", "Low ETa",
             "Moderate ETa", "High ETa", "Very High ETa"]
 )
+gdf['eta'] = gdf['_mean']
 
 df = gdf[['quantile_bin', '_mean']]
 
@@ -113,43 +108,206 @@ bar = alt.Chart(df).mark_bar().encode(
 col1, col2 = st.columns([3, 1])
 
 with col2:
-    st.session_state.basemap = st.selectbox(
-        "Select basemap", options, index=options.index("OpenStreetMap"))
     st.altair_chart(bar, use_container_width=True)
 
+# Use KeplerGl for the map visualization
 with col1:
-    # Initialize the map centered on the GeoJSON centroid
-    m = leafmap.Map(
-        center=(centroid_lat, centroid_lon),  # Center the map on the centroid
-        zoom=10,  # Adjust the zoom level as needed
-        style="positron"
-    )
-    m.add_basemap(st.session_state.basemap)
-    m.add_geojson(
-        leafmap.gdf_to_geojson(gdf),
-        layer_type="fill-extrusion",
-        name="ETa",
-        paint={
-            "fill-extrusion-height": ["*", 200, ["get", "_mean"]],
-            "fill-extrusion-opacity": 0.6,
-            "fill-extrusion-color": ["get", "color"],
-        },
-    )
+    m = leafmap.Map(height=700)
 
-    # Add a legend to the map using hex color codes
-    legend_dict = {
-        "Very Low ETa": "#808080",  # grey
-        "Low ETa": "#FFFF00",       # yellow
-        "Moderate ETa": "#FFA500",  # orange
-        "High ETa": "#8B0000",      # darkred
-        "Very High ETa": "#ADD8E6",  # lightblue
+    # Add the data to KeplerGl
+    m.add_data(data=gdf, name="ETa Levels")
+
+    # Kepler.gl configuration
+    config = {
+        "version": "v1",
+        "config": {
+            "visState": {
+                "filters": [],
+                "layers": [
+                    {
+                        "id": "tdp4as8",
+                        "type": "geojson",
+                        "config": {
+                            "dataId": "ETa Levels",
+                            "label": "ETa",
+                            "color": [
+                                18,
+                                147,
+                                154
+                            ],
+                            "columns": {
+                                "geojson": "geometry"
+                            },
+                            "isVisible": True,
+                            "visConfig": {
+                                "opacity": 0.72,
+                                "strokeOpacity": 0.8,
+                                "thickness": 0.5,
+                                "strokeColor": [
+                                    221,
+                                    178,
+                                    124
+                                ],
+                                "colorRange": {
+                                    "name": "Custom Palette",
+                                    "type": "custom",
+                                    "category": "Custom",
+                                    "colors": [
+                                        "#808080",
+                                        "#FFFF00",
+                                        "#FFA500",
+                                        "#8B0000",
+                                        "#ADD8E6"
+                                    ]
+                                },
+                                "strokeColorRange": {
+                                    "name": "Global Warming",
+                                    "type": "sequential",
+                                    "category": "Uber",
+                                    "colors": [
+                                        "#5A1846",
+                                        "#900C3F",
+                                        "#C70039",
+                                        "#E3611C",
+                                        "#F1920E",
+                                        "#FFC300"
+                                    ]
+                                },
+                                "radius": 10,
+                                "sizeRange": [
+                                    0,
+                                    10
+                                ],
+                                "radiusRange": [
+                                    0,
+                                    50
+                                ],
+                                "heightRange": [
+                                    0,
+                                    500
+                                ],
+                                "elevationScale": 1,
+                                "stroked": False,
+                                "filled": True,
+                                "enable3d": True,
+                                "wireframe": False
+                            },
+                            "hidden": False,
+                            "textLabel": [
+                                {
+                                    "field": None,
+                                    "color": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "size": 18,
+                                    "offset": [
+                                        0,
+                                        0
+                                    ],
+                                    "anchor": "start",
+                                    "alignment": "center"
+                                }
+                            ]
+                        },
+                        "visualChannels": {
+                            "colorField": {
+                                "name": "color",
+                                "type": "string"
+                            },
+                            "colorScale": "ordinal",
+                            "sizeField": None,
+                            "sizeScale": "linear",
+                            "strokeColorField": None,
+                            "strokeColorScale": "quantile",
+                            "heightField": {
+                                "name": "eta",
+                                "type": "real"
+                            },
+                            "heightScale": "linear",
+                            "radiusField": None,
+                            "radiusScale": "linear"
+                        }
+                    }
+                ],
+                "interactionConfig": {
+                    "tooltip": {
+                        "fieldsToShow": {
+                            "ETa Levels": [
+                                {
+                                    "name": "AREA",
+                                    "format": None
+                                },
+                                {
+                                    "name": "Perimetro",
+                                    "format": None
+                                },
+                                {
+                                    "name": "eta",
+                                    "format": None
+                                },
+                                {
+                                    "name": "quantile_bin",
+                                    "format": None
+                                }
+                            ]
+                        },
+                        "compareMode": False,
+                        "compareType": "absolute",
+                        "enabled": True
+                    },
+                    "brush": {
+                        "size": 0.5,
+                        "enabled": False
+                    },
+                    "geocoder": {
+                        "enabled": False
+                    },
+                    "coordinate": {
+                        "enabled": False
+                    }
+                },
+                "layerBlending": "normal",
+                "splitMaps": [],
+                "animationConfig": {
+                    "currentTime": None,
+                    "speed": 1
+                }
+            },
+            "mapState": {
+                "bearing": 2.6192893401015205,
+                "dragRotate": True,
+                "latitude": 3.777306559818618,
+                "longitude": -76.37071390286864,
+                "pitch": 37.374216241015446,
+                "zoom": 10.75174663737936,
+                "isSplit": False
+            },
+            "mapStyle": {
+                "styleType": "dark",
+                "topLayerGroups": {},
+                "visibleLayerGroups": {
+                    "label": True,
+                    "road": True,
+                    "border": False,
+                    "building": True,
+                    "water": True,
+                    "land": True,
+                    "3d building": False
+                },
+                "threeDBuildingColor": [
+                    9.665468314072013,
+                    17.18305478057247,
+                    31.1442867897876
+                ],
+                "mapStyles": {}
+            }
+        }
     }
-    m.add_legend(
-        title="ETa Levels",
-        legend_dict=legend_dict,
-        bg_color="rgba(255, 255, 255, 0.5)",
-        position="bottom-left",
-    )
 
-    m.add_layer_control()
+    # Pass the configuration to the KeplerGl map
+    m.config = config
+
+    # Display the map in Streamlit
     m.to_streamlit(height=700)

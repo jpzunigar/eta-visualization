@@ -9,6 +9,8 @@ readme = "README.md"
 python = "^3.10"
 streamlit = "^1.37.1"
 leafmap = {extras = ["maplibre"], version = "^0.36.6"}
+streamlit-folium = "^0.22.0"
+keplergl = "0.2.2"
 
 
 [build-system]
